@@ -1,9 +1,18 @@
 version: '3.8'
 
 services:
+  frontend:
+      build: ./../music   # 指定前端應用的 Dockerfile 目錄
+      container_name: music-frontend
+      restart: always
+      ports:
+        - "8080:8080"  # 映射前端應用的端口（例如 80）
+      networks:
+        - music-network
+
   mysql:
     image: mysql:8.0  # 使用 MySQL 8.0 版本的官方 Docker 鏡像
-    container_name: mysql-db  # 容器名稱
+    container_name: music-mysql-db  # 容器名稱
     restart: always  # 總是在容器退出時重新啟動
     environment:
       MYSQL_ROOT_PASSWORD: root_password  # MySQL root 密碼
@@ -15,10 +24,23 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql  # 將 MySQL 的數據目錄掛載到本機的 volumes 中，以保留數據
     networks:
-      - backend-network  # 定義一個網路，後端可以連線到這個網路
+      - music-network  # 定義一個網路，後端可以連線到這個網路
+    
+  backend:
+    build: ./  # 指定後端應用的 Dockerfile 目錄，假設後端代碼在 backend 目錄下
+    container_name: music-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production  # 設置 Node.js 應用的環境變量，根據需要設置
+    depends_on:
+      - mysql  # 後端服務依賴於 MySQL 服務
+    networks:
+      - music-network
 
 volumes:
   mysql_data:  # 定義名為 mysql_data 的 volumes，用於持久化 MySQL 的數據
 
 networks:
-  backend-network:  # 定義一個名為 backend-network 的網路，用於後端和 MySQL 之間的連線
+  music-network:  # 專案互相溝通的網路
