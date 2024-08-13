@@ -43,4 +43,4 @@ volumes:
   mysql_data:  # 定義名為 mysql_data 的 volumes，用於持久化 MySQL 的數據
 
 networks:
-  music-network:  # 專案互相溝通的網路
+  music-network:  # 專案互相溝通的網路.
